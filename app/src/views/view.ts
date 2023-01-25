@@ -1,3 +1,6 @@
+import { inspecionar } from "../decorators/inspecionar.js"
+import { logarTempoDeExecucao } from "../decorators/logar-tempo-de-execucao.js"
+
 export abstract class View<T> {
     protected elemento: HTMLElement
     private escapar = false
@@ -9,6 +12,9 @@ export abstract class View<T> {
         if(escapar) this.escapar = escapar
     }
     
+    // Ordem do topo para baixo
+    @logarTempoDeExecucao(true)
+    @inspecionar
     public update(model: T): void {
         let template = this.template(model)
 

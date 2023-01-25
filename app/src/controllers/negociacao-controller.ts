@@ -3,6 +3,7 @@ import { MensagemView } from '../views/mensagem-view.js'
 import { diasDaSemana } from '../enums/dias-da-semana.js'
 import { NegociacoesView } from '../views/negociacoes-view.js'
 import { Negociacao } from '../models/negociacao.js'
+import { logarTempoDeExecucao } from '../decorators/logar-tempo-de-execucao.js'
 
 export class NegociacaoController {
     private inputData: HTMLInputElement
@@ -16,9 +17,9 @@ export class NegociacaoController {
         this.inputData = <HTMLInputElement> document.querySelector('#data')
         this.inputQuantidade = document.querySelector('#quantidade') as HTMLInputElement
         this.inputValor = document.querySelector('#valor') as HTMLInputElement
-        this.negociacoesView.update(this.negociacoes)
     }
 
+    @logarTempoDeExecucao()
     public adiciona(): void {
         /** Comentário a ser removido */
         const negociacao = Negociacao.criaDe(

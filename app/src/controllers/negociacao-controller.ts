@@ -4,22 +4,26 @@ import { diasDaSemana } from '../enums/dias-da-semana.js'
 import { NegociacoesView } from '../views/negociacoes-view.js'
 import { Negociacao } from '../models/negociacao.js'
 import { logarTempoDeExecucao } from '../decorators/logar-tempo-de-execucao.js'
+import { inspecionar } from '../decorators/inspecionar.js'
+import { domInjetor } from '../decorators/dom-injetor.js'
+import { NegociacoesService } from '../services/negociacoes-service.js'
+import { imprimir } from '../utils/imprimir.js'
 
 export class NegociacaoController {
+    @domInjetor('#data')
     private inputData: HTMLInputElement
+    @domInjetor('#quantidade')
     private inputQuantidade: HTMLInputElement
+    @domInjetor('#valor')
     private inputValor: HTMLInputElement
+
     private negociacoes = new Negociacoes()
-    private negociacoesView = new NegociacoesView('#negociacoesView', true)
+    private negociacoesView = new NegociacoesView('#negociacoesView')
     private mensagemView = new MensagemView('#mensagemView')
+    private negociacoesService = new NegociacoesService()
 
-    constructor() {
-        this.inputData = <HTMLInputElement> document.querySelector('#data')
-        this.inputQuantidade = document.querySelector('#quantidade') as HTMLInputElement
-        this.inputValor = document.querySelector('#valor') as HTMLInputElement
-    }
+    //  removi daqui os seletores e criei um decorator
 
-    @logarTempoDeExecucao()
     public adiciona(): void {
         /** Comentário a ser removido */
         const negociacao = Negociacao.criaDe(
@@ -27,15 +31,29 @@ export class NegociacaoController {
             this.inputQuantidade.value,
             this.inputValor.value,
         )
-        
-        if(!this.ehDiaUtil(negociacao.data)) {
+
+        if (!this.ehDiaUtil(negociacao.data)) {
             this.mensagemView.update('Apenas negociaciacoes em dias úteis são aceitas')
-            return 
+            return
         }
 
         this.negociacoes.adiciona(negociacao)
+        
+        imprimir(negociacao, this.negociacoes)
+
         this.atualizaView()
         this.limparFormulario()
+    }
+
+    public async importaDados(): Promise<void> {
+        let negociacoesDeHoje = await this.negociacoesService.obterNegociacoes()
+        
+        negociacoesDeHoje = negociacoesDeHoje
+            .filter(negociacaoDeHoje => !this.negociacoes.lista()
+            .some(negociacao => negociacao.ehIgual(negociacaoDeHoje)))
+                
+        negociacoesDeHoje.forEach(negociacao => this.negociacoes.adiciona(negociacao))
+        this.negociacoesView.update(this.negociacoes)
     }
 
     private ehDiaUtil(data: Date): boolean {

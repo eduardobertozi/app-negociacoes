@@ -9,3 +9,12 @@ form.addEventListener('submit', event => {
     event.preventDefault()
     controller.adiciona()
 })
+
+const formBtnImporta = document.querySelector('#btn-importar')
+
+if(!formBtnImporta) throw Error('Botão importa não foi encontrado')
+
+formBtnImporta.addEventListener('click', () => {
+    // controller.importaDados()
+    controller.importaDados()
+})
